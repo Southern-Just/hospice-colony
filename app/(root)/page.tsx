@@ -1,4 +1,6 @@
-"use client"
+"use client";
+
+import { useState } from 'react';
 
 import {
     LayoutDashboardIcon,
@@ -8,19 +10,20 @@ import {
     SettingsIcon,
     BellIcon
 } from "lucide-react";
-import {Analytics} from "@/components/Analytics";
-import {BedArrangement} from "@/components/BedArrangement";
-import {HospitalPartners} from "@/components/HospitalPartners";
-import {Dashboard} from "@/components/Dashboard";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {useState} from "react";
+import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { UserProfile } from '@/components/auth/UserProfile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dashboard } from '@/components/Dashboard';
+import { HospitalPartners } from '@/components/HospitalPartners';
+import { BedArrangement } from '@/components/BedArrangement';
+import { Analytics } from '@/components/Analytics';
 
-export default function App() {
+export default function HomePage() {
     const [activeTab, setActiveTab] = useState("dashboard");
+    const { user } = useAuth();
 
-    // Mock data for dashboard
     const dashboardData = {
         totalBeds: 610,
         availableBeds: 106,
@@ -29,32 +32,37 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            {/* Header */}
+        <div className="min-h-screen healthcare-home-bg">
             <header className="border-b bg-card">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-2">
-                                <div className="w-8 h-8 bg-ring rounded-lg flex items-center justify-center">
+                                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                                     <HospitalIcon className="w-5 h-5 text-primary-foreground" />
                                 </div>
-                                <span className="text-xl font-bold text-ring">Hospice Colony</span>
+                                <span className="text-xl font-bold">Hospice Colony</span>
                             </div>
                             <Badge variant="outline" className="hidden md:flex">
-                                sajoh, algorithm 001
+                                sajoh - Swarm Algorithm 001
                             </Badge>
+                            {user && (
+                                <Badge variant="secondary" className="hidden lg:flex">
+                                    Welcome, {user.firstName}
+                                </Badge>
+                            )}
                         </div>
 
                         <div className="flex items-center space-x-3">
                             <Button variant="outline" size="sm">
                                 <BellIcon className="w-4 h-4 mr-1" />
-                                Alerts
+                                <span className="hidden sm:inline">Alerts</span>
                             </Button>
                             <Button variant="outline" size="sm">
                                 <SettingsIcon className="w-4 h-4 mr-1" />
-                                Settings
+                                <span className="hidden sm:inline">Settings</span>
                             </Button>
+                            <UserProfile />
                         </div>
                     </div>
                 </div>
@@ -105,18 +113,18 @@ export default function App() {
                 <div className="container mx-auto px-6 py-6">
                     <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
                         <p className="text-sm text-muted-foreground">
-                            © 2025 Hospice Colony. Powered by advanced swarm algorithms for optimal healthcare resource
-                            allocation.
-
+                            © 2025 Hospice Colony. Powered by advanced swarm algorithms for optimal healthcare resource allocation.
                         </p>
-                         <p className="text-sm text-muted-foreground"> southern Just</p>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <span>System Status: Active</span>
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span>System Status: Active</span>
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            {user && (
+                                <span>Logged in as: {user.firstName} {user.lastName}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
-        </div>
-</footer>
+            </footer>
         </div>
     );
 }
