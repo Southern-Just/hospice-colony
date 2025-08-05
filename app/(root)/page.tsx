@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dashboard } from '@/components/Dashboard';
-import { HospitalPartners } from '@/components/HospitalPartners';
 import { BedArrangement } from '@/components/BedArrangement';
 import { Analytics } from '@/components/Analytics';
+import { HospitalPartners } from '@/components/HospitalPartners';
 
 export default function HomePage() {
     const [activeTab, setActiveTab] = useState("dashboard");
