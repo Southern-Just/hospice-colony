@@ -1,13 +1,15 @@
-import { Bed } from "@/types/Bed";
+// lib/server/bedOptimization.middleware.ts
+import { Bed } from "@/types";
 
-export const validateBeds = (beds: Bed[]): boolean => {
+export const validateBeds = (beds: unknown): beds is Bed[] => {
   if (!Array.isArray(beds)) return false;
-  return beds.every(bed =>
-    bed.id &&
-    bed.status &&
-    bed.ward &&
-    bed.bedNumber &&
-    typeof bed.position.x === 'number' &&
-    typeof bed.position.y === 'number'
+  return beds.every((bed: any) =>
+      typeof bed?.id === "string" &&
+      typeof bed?.status === "string" &&
+      typeof bed?.ward === "string" &&
+      typeof bed?.bedNumber === "string" &&
+      bed?.position &&
+      typeof bed.position.x === "number" &&
+      typeof bed.position.y === "number"
   );
 };

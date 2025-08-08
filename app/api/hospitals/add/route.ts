@@ -1,44 +1,46 @@
-import { NextRequest, NextResponse } from "next/server";
-import { addHospital } from "@/lib/hospitalPartners.server";
-import { z } from "zod";
-import { NewHospital } from "@/lib/database/schema";
+import { db } from '@/lib/database/db';
+import { hospitals } from '@/lib/database/schema';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { SPECIALTIES } from '@/lib/constants';
 
-const hospitalSchema = z.object({
+const HospitalSchema = z.object({
   name: z.string().min(1),
   location: z.string().min(1),
-  totalBeds: z.number().int().nonnegative(),
-  availableBeds: z.number().int().nonnegative(),
-  specialties: z.array(z.string().min(1)),
-  phone: z.string().min(5).max(20).optional(),
+  totalBeds: z.number().min(1),
+  availableBeds: z.number().min(0),
+  specialties: z.array(z.enum([...SPECIALTIES])),
+  phone: z.string().min(1),
+  status: z.enum(['active', 'inactive']),
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    const formatted = {
-      ...body,
-      totalBeds: Number(body.totalBeds),
-      availableBeds: Number(body.availableBeds),
-      specialties: Array.isArray(body.specialties)
-        ? body.specialties
-        : typeof body.specialties === "string"
-        ? body.specialties.split(",").map((s: string) => s.trim())
-        : [],
-    };
-
-    const parsed = hospitalSchema.safeParse(formatted);
+    const parsed = HospitalSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid data", issues: parsed.error.format() }, { status: 400 });
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
     }
 
-    const payload: NewHospital = parsed.data;
-    await addHospital(payload);
+    const data = parsed.data;
 
-    return NextResponse.json({ success: true }, { status: 201 });
-  } catch (err) {
-    console.error("Error adding hospital:", err);
-    return NextResponse.json({ error: "Failed to add hospital" }, { status: 500 });
+    const inserted = await db
+        .insert(hospitals)
+        .values({
+          name: data.name,
+          location: data.location,
+          totalBeds: data.totalBeds,
+          availableBeds: data.availableBeds,
+          specialties: data.specialties,
+          phone: data.phone,
+          status: data.status,
+        })
+        .returning();
+
+    return NextResponse.json(inserted[0]);
+  } catch (error) {
+    console.error('POST hospital error:', error);
+    return NextResponse.json({ error: 'Failed to add hospital' }, { status: 500 });
   }
 }

@@ -3,14 +3,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { User } from '../lib/database/schema';
 
-interface ExtendedUser extends User {
+interface ExtendedUser extends Partial<User> {
   hospitalName?: string | null;
 }
 
 interface AuthContextType {
   user: ExtendedUser | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
   isAuthenticated: boolean;
 }
@@ -36,8 +36,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const userData = localStorage.getItem('userData');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+        const userData = typeof window !== 'undefined' ? localStorage.getItem('userData') : null;
 
         if (token && userData) {
           const res = await fetch('/api/auth/session', {
@@ -46,9 +46,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
           if (res.ok) {
             const session = await res.json();
-            const parsedUser = JSON.parse(userData) as User;
-            const hospitalRes = await fetch(`/api/hospitals/${parsedUser.hospitalId}`);
-            const hospital = hospitalRes.ok ? await hospitalRes.json() : null;
+            let parsedUser = JSON.parse(userData);
+            // handle both hospitalId and hospital_id shapes
+            const hospitalId = parsedUser.hospitalId ?? parsedUser.hospital_id ?? parsedUser.hospital?.id;
+            let hospital = null;
+            if (hospitalId) {
+              const hospitalRes = await fetch(`/api/hospitals/${hospitalId}`);
+              hospital = hospitalRes.ok ? await hospitalRes.json() : null;
+            }
 
             setUser({
               ...parsedUser,
@@ -57,12 +62,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } else {
             localStorage.removeItem('authToken');
             localStorage.removeItem('userData');
+            setUser(null);
           }
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('userData');
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -80,18 +87,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!res.ok) return false;
+      if (!res.ok) {
+        return false;
+      }
 
       const data = await res.json();
-      const { token, user } = data;
+      const { token, user: returnedUser } = data;
+      const hospitalId = returnedUser?.hospitalId ?? returnedUser?.hospital_id ?? returnedUser?.hospital?.id;
+      let hospital = null;
+      if (hospitalId) {
+        const hospitalRes = await fetch(`/api/hospitals/${hospitalId}`);
+        hospital = hospitalRes.ok ? await hospitalRes.json() : null;
+      }
 
-      const hospitalRes = await fetch(`/api/hospitals/${user.hospitalId}`);
-      const hospital = hospitalRes.ok ? await hospitalRes.json() : null;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(returnedUser));
+      }
 
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(user));
       setUser({
-        ...user,
+        ...returnedUser,
         hospitalName: hospital?.name || null,
       });
 
@@ -105,17 +120,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      if (token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } catch (err) {
+      console.error('Logout error', err);
+    } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+      }
+      setUser(null);
     }
-
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setUser(null);
   };
 
   const value: AuthContextType = {
@@ -127,8 +148,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
   );
 }

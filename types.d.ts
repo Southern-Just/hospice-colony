@@ -11,3 +11,13 @@ export interface Ant {
   path: Bed[];
   fitness: number;
 }
+export interface Hospital {
+  id: string;
+  name: string;
+  location: string;
+  totalBeds: number;
+  availableBeds: number;
+  specialties: string[];
+  status: 'active' | 'inactive';
+  phone: string;
+}

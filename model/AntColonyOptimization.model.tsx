@@ -1,4 +1,4 @@
-import { Bed, Ant } from "@/types/Bed";
+import { Bed, Ant } from "@/types";
 
 interface ACOConfig {
   iterations: number;

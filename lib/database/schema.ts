@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp,integer, uuid, varchar, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp,integer, uuid, varchar, boolean, jsonb } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -32,6 +32,14 @@ export const hospitals = pgTable('hospitals', {
     // isActive: boolean('is_active').notNull().default(true),
     status: text("status").default("active"),    createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+export const beds = pgTable("beds", {
+    id: varchar("id").primaryKey(), // e.g., "bed-1"
+    status: varchar("status").notNull(), // available, occupied, maintenance, reserved
+    ward: varchar("ward").notNull(), // ICU, Emergency, etc.
+    bedNumber: varchar("bed_number").notNull(), // e.g., A1
+    priority: varchar("priority").notNull(), // low, medium, high
+    position: jsonb("position").notNull(), // { x: number, y: number }
 });
 
 export type User = typeof users.$inferSelect;
