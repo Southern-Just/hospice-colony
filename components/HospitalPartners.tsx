@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Hospital } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import {HospitalDetailsModal} from "@/components/HospitalDetailsModal";
+import Link from 'next/link';
 
 export function HospitalPartners() {
   const { user } = useAuth();
@@ -129,7 +130,7 @@ export function HospitalPartners() {
                     </CardHeader>
 
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Total Beds</p>
                           <div className="flex items-center space-x-2">
@@ -143,6 +144,14 @@ export function HospitalPartners() {
                             <BedIcon className="h-4 w-4 text-green-600" />
                             <span className="font-semibold text-green-600">{hospital.availableBeds}</span>
                           </div>
+                        </div>
+                        <div>
+                          <Button
+                              asChild
+                              className="bg-muted-foreground rounded-full text-white text-bold p-6 mx-auto hover:bg-muted-foreground/80"
+                          >
+                            <Link href="/admit">Get Admitted</Link>
+                          </Button>
                         </div>
                       </div>
 

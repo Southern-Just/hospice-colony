@@ -22,7 +22,15 @@ import {
   ZapIcon,
   FilterIcon
 } from "lucide-react";
-import { Bed } from '@/types';
+
+// Bed type
+type Bed = {
+  id: number;
+  bedNumber: string;
+  ward: string;
+  status: 'available' | 'occupied' | 'maintenance' | 'reserved';
+  position: { x: number; y: number };
+};
 
 const getBedColor = (status: Bed['status']) => {
   switch (status) {
@@ -34,28 +42,29 @@ const getBedColor = (status: Bed['status']) => {
   }
 };
 
+// Mock beds
+const mockBeds: Bed[] = [
+  { id: 1, bedNumber: 'B1', ward: 'ICU', status: 'available', position: { x: 50, y: 60 } },
+  { id: 2, bedNumber: 'B2', ward: 'ICU', status: 'occupied', position: { x: 120, y: 80 } },
+  { id: 3, bedNumber: 'B3', ward: 'Emergency', status: 'maintenance', position: { x: 200, y: 150 } },
+  { id: 4, bedNumber: 'B4', ward: 'Emergency', status: 'reserved', position: { x: 280, y: 200 } },
+  { id: 5, bedNumber: 'B5', ward: 'General', status: 'available', position: { x: 360, y: 100 } },
+  { id: 6, bedNumber: 'B6', ward: 'General', status: 'occupied', position: { x: 420, y: 250 } },
+  { id: 7, bedNumber: 'B7', ward: 'Pediatrics', status: 'available', position: { x: 500, y: 180 } },
+  { id: 8, bedNumber: 'B8', ward: 'Surgery', status: 'reserved', position: { x: 580, y: 300 } }
+];
+
 export function BedArrangement() {
   const [beds, setBeds] = useState<Bed[]>([]);
   const [selectedWard, setSelectedWard] = useState<string>('all');
   const [isOptimizing, setIsOptimizing] = useState(false);
 
-  // Fetch beds from DB on mount
+  // Load mock data on mount
   useEffect(() => {
-    const fetchBeds = async () => {
-      try {
-        const res = await fetch('/api/beds');
-        if (!res.ok) {
-          console.error('Failed to fetch beds:', await res.text());
-          return;
-        }
-        const data = await res.json();
-        setBeds(data);
-      } catch (err) {
-        console.error('Error fetching beds:', err);
-      }
-    };
-    fetchBeds();
+    setBeds(mockBeds);
   }, []);
+
+  const wards = ['all', ...Array.from(new Set(beds.map(b => b.ward)))];
 
   const filteredBeds = selectedWard === 'all'
       ? beds
@@ -70,40 +79,18 @@ export function BedArrangement() {
     if (beds.length === 0) return;
     setIsOptimizing(true);
 
-    try {
-      // Request server-side optimization. We send the current beds so server can validate.
-      const res = await fetch('/api/bed-optimization', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ beds })
-      });
-
-      if (!res.ok) {
-        console.error('Optimization failed:', await res.text());
-        setIsOptimizing(false);
-        return;
-      }
-
-      const optimizedBeds: Bed[] = await res.json();
-
-      // Update state with server-provided optimized layout (assumes server returns positions)
-      setBeds(optimizedBeds);
-
-      // Persist optimized beds to DB
-      const persistRes = await fetch('/api/beds', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(optimizedBeds)
-      });
-
-      if (!persistRes.ok) {
-        console.error('Failed to save optimized beds:', await persistRes.text());
-      }
-    } catch (err) {
-      console.error('Error during optimization flow:', err);
-    } finally {
+    // Fake optimization: randomize positions
+    setTimeout(() => {
+      const optimized = beds.map(bed => ({
+        ...bed,
+        position: {
+          x: Math.floor(Math.random() * 600) + 30,
+          y: Math.floor(Math.random() * 400) + 30
+        }
+      }));
+      setBeds(optimized);
       setIsOptimizing(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -113,19 +100,18 @@ export function BedArrangement() {
             <h2 className="text-2xl font-bold">Bed Arrangement</h2>
             <p className="text-muted-foreground">AI-powered bed allocation using swarm algorithms</p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row items-center space-x-3">
             <Select value={selectedWard} onValueChange={setSelectedWard}>
               <SelectTrigger className="w-40">
                 <FilterIcon className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filter by ward" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Wards</SelectItem>
-                <SelectItem value="ICU">ICU</SelectItem>
-                <SelectItem value="Emergency">Emergency</SelectItem>
-                <SelectItem value="General">General</SelectItem>
-                <SelectItem value="Surgery">Surgery</SelectItem>
-                <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                {wards.map(ward => (
+                    <SelectItem key={ward} value={ward}>
+                      {ward === 'all' ? 'All Wards' : ward}
+                    </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button
@@ -156,7 +142,7 @@ export function BedArrangement() {
               {(['available', 'occupied', 'reserved', 'maintenance'] as Bed['status'][]).map(status => (
                   <div key={status} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 rounded ${getBedColor(status)}`}></div>
+                      <div className={`w-3 h-3 rounded ${getBedColor(status)}`} />
                       <span className="text-sm capitalize">{status}</span>
                     </div>
                     <Badge variant="outline">{statusCounts[status] || 0}</Badge>

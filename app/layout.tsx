@@ -33,7 +33,7 @@ export default function RootLayout({
           {children}
           <Toaster
               richColors
-              position="bottom-right"
+              position="top-right"
               toastOptions={{
                 style: {
                   maxWidth: '100%',

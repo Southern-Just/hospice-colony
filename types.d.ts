@@ -21,3 +21,9 @@ export interface Hospital {
   status: 'active' | 'inactive';
   phone: string;
 }
+export interface DashboardProps {
+  totalBeds: number;
+  availableBeds: number;
+  occupiedBeds: number;
+  partneredHospitals: number;
+}
