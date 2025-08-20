@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from '../lib/database/schema';
+import type { User } from '../../lib/database/schema';
 
 interface ExtendedUser extends Partial<User> {
   hospitalName?: string | null;

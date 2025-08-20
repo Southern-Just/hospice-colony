@@ -1,6 +1,6 @@
-import { db } from "@/db";
-import { pheromones, beds } from "@/db/schema";
+import { pheromones, beds } from "@/lib/database/schema";
 import { eq, and } from "drizzle-orm";
+import { db } from "../database/db";
 
 type SelectBedParams = {
     hospitalId: string;
@@ -73,7 +73,7 @@ class PersistentACOService {
                 id: `${hospitalId}-${bedId}`,
                 hospitalId,
                 bedId,
-                pheromoneLevel: success ? 1.5 : 0.5,
+                pheromoneLevel: (success ? 1.5 : 0.5).toString(),
             });
         } else {
             const newLevel = Math.max(
@@ -82,7 +82,7 @@ class PersistentACOService {
             );
             await db
                 .update(pheromones)
-                .set({ pheromoneLevel: newLevel, lastUpdated: new Date() })
+                .set({ pheromoneLevel: newLevel.toString(), lastUpdated: new Date() })
                 .where(eq(pheromones.id, `${hospitalId}-${bedId}`));
         }
     }

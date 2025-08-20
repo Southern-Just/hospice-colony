@@ -1,14 +1,26 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { HospitalIcon, MapPinIcon, BedIcon, PhoneIcon, Loader } from 'lucide-react';
+import {
+  HospitalIcon,
+  MapPinIcon,
+  BedIcon,
+  PhoneIcon,
+  Loader,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Hospital } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
-import {HospitalDetailsModal} from "@/components/HospitalDetailsModal";
+import { useAuth } from '@/components/contexts/AuthContext';
+import { HospitalPartnerModal } from '@/components/HospitalPartnerModal';
 import Link from 'next/link';
 
 export function HospitalPartners() {
@@ -17,8 +29,10 @@ export function HospitalPartners() {
 
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedHospitalId, setSelectedHospitalId] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+
+  // For beds & ward filtering
+  const [beds, setBeds] = useState<Record<string, any[]>>({});
+  const [selectedWard, setSelectedWard] = useState<Record<string, string>>({});
 
   const fetchHospitals = useCallback(async () => {
     try {
@@ -31,12 +45,24 @@ export function HospitalPartners() {
       setHospitals(data);
     } catch (err) {
       console.error('Fetch hospitals error:', err);
-      toast.error('Failed to fetch hospitals.');
+      toast.error('Could not load hospitals.');
       setHospitals([]);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const fetchBeds = async (hospitalId: string) => {
+    try {
+      const res = await fetch(`/api/hospitals/${hospitalId}/beds`);
+      if (!res.ok) throw new Error('Error fetching beds');
+      const data = await res.json();
+      setBeds((prev) => ({ ...prev, [hospitalId]: data }));
+    } catch (err) {
+      console.error('Fetch beds error:', err);
+      toast.error('Could not load beds for hospital.');
+    }
+  };
 
   useEffect(() => {
     fetchHospitals();
@@ -44,162 +70,194 @@ export function HospitalPartners() {
     return () => clearInterval(interval);
   }, [fetchHospitals]);
 
-  const openModal = (id: string) => {
-    setSelectedHospitalId(id);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedHospitalId(null);
+  const handleSaveHospital = () => {
     fetchHospitals();
-  };
-
-  const requireAdmin = (action: () => void) => {
-    if (!isAdmin) {
-      toast.error('Login as admin to edit.');
-      return;
-    }
-    action();
   };
 
   const handleEnroll = async (hospitalId: string) => {
     if (!isAdmin) {
-      toast.error('Login as admin to enrol');
+      toast.error('Login as admin to enrol.');
       return;
     }
     try {
-      const res = await fetch(`/api/hospitals/${hospitalId}/enroll`, { method: 'POST' });
+      const res = await fetch(`/api/hospitals/${hospitalId}/enroll`, {
+        method: 'POST',
+      });
       if (!res.ok) throw new Error('Enroll failed');
 
-      toast.success('Successfully enrolled in hospital.');
+      toast.success('Successfully enrolled.');
       fetchHospitals();
     } catch {
-      toast.error('Error enrolling in hospital.');
+      toast.error('Error enrolling hospital.');
     }
   };
 
   return (
-      <div className="space-y-6">
-        {modalOpen && selectedHospitalId && (
-            <HospitalDetailsModal
-                hospitalId={selectedHospitalId}
-                open={modalOpen}
-                isAdmin={isAdmin}
-                onEnroll={handleEnroll}
-                onClose={closeModal}
-            />
-        )}
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Partner Hospitals</h2>
-            <p className="text-muted-foreground">Hospitals collaborating with Hospice Colony</p>
-          </div>
-          {isAdmin && <Button>Add New Partner</Button>}
+    <div className="space-y-6">
+      {/* ---- HEADER ---- */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Partner Hospitals</h2>
+          <p className="text-muted-foreground">
+            Hospitals collaborating with Hospice Colony
+          </p>
         </div>
-
-        {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader className="animate-spin text-gray-500 h-6 w-6" />
-            </div>
-        ) : hospitals.length === 0 ? (
-            <p className="text-center text-muted-foreground">No hospitals available.</p>
-        ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {hospitals.map((hospital) => (
-                  <Card key={hospital.id} className="relative">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-primary/10 rounded-lg">
-                            <HospitalIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{hospital.name}</CardTitle>
-                            <CardDescription className="flex items-center space-x-1">
-                              <MapPinIcon className="h-3 w-3" />
-                              <span>{hospital.location}</span>
-                            </CardDescription>
-                          </div>
-                        </div>
-                        <Badge variant={hospital.status === 'active' ? 'default' : 'secondary'}>
-                          {hospital.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Total Beds</p>
-                          <div className="flex items-center space-x-2">
-                            <BedIcon className="h-4 w-4" />
-                            <span className="font-semibold">{hospital.totalBeds}</span>
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Available</p>
-                          <div className="flex items-center space-x-2">
-                            <BedIcon className="h-4 w-4 text-green-600" />
-                            <span className="font-semibold text-green-600">{hospital.availableBeds}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <Button
-                              asChild
-                              className="bg-muted-foreground rounded-full text-white text-bold p-6 mx-auto hover:bg-muted-foreground/80"
-                          >
-                            <Link href="/admit">Get Admitted</Link>
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">Specialties</p>
-                        <div className="flex flex-wrap gap-1">
-                          {hospital.specialties?.map((specialty) => (
-                              <Badge key={specialty} variant="outline" className="text-xs">
-                                {specialty}
-                              </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <PhoneIcon className="h-3 w-3" />
-                          <span>{hospital.phone}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openModal(hospital.id)} // Changed: No admin check
-                          >
-                            View
-                          </Button>
-                          <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEnroll(hospital.id)}
-                          >
-                            Enrol
-                          </Button>
-                          <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => requireAdmin(() => openModal(hospital.id))}
-                          >
-                            Edit
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-              ))}
-            </div>
+        {isAdmin && (
+          <HospitalPartnerModal
+            hospital={null}
+            isAdmin={isAdmin}
+            onSave={handleSaveHospital}
+            trigger={<Button>Add New Partner</Button>}
+          />
         )}
       </div>
+
+      {/* ---- CONTENT ---- */}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <Loader className="animate-spin text-gray-500 h-6 w-6" />
+        </div>
+      ) : hospitals.length === 0 ? (
+        <p className="text-center text-muted-foreground">
+          No hospitals available.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {hospitals.map((hospital) => {
+            const allBeds = beds[hospital.id] ?? [];
+            const ward = selectedWard[hospital.id] ?? 'General';
+            const availableBedsCount =
+              ward === 'General'
+                ? allBeds.length > 0
+                  ? allBeds.filter((b) => b.status === 'available').length
+                  : hospital.availableBeds
+                : allBeds.filter(
+                    (b) => b.status === 'available' && b.wardType === ward
+                  ).length;
+
+            return (
+              <Card key={hospital.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <HospitalIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">
+                          {hospital.name}
+                        </CardTitle>
+                        <CardDescription className="flex items-center space-x-1">
+                          <MapPinIcon className="h-3 w-3" />
+                          <span>{hospital.location}</span>
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={
+                        hospital.status?.toLowerCase() === 'active'
+                          ? 'default'
+                          : 'secondary'
+                      }
+                    >
+                      {hospital.status}
+                    </Badge>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Beds</p>
+                      <div className="flex items-center space-x-2">
+                        <BedIcon className="h-4 w-4" />
+                        <span className="font-semibold">
+                          {hospital.totalBeds}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Available</p>
+                      <div className="flex items-center space-x-2">
+                        <BedIcon className="h-4 w-4 text-green-600" />
+                        <span className="font-semibold text-green-600">
+                          {availableBedsCount}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-center items-center">
+                      <Button
+                        asChild
+                        className="bg-muted-foreground rounded-full text-white px-4 py-2 hover:bg-muted-foreground/80"
+                      >
+                        <Link href="/admit">Get Admitted</Link>
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm mb-1.5 text-muted-foreground">
+                      Specialties
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {['General', ...(hospital.specialties ?? [])]
+                        .filter((v, i, arr) => arr.indexOf(v) === i)
+                        .map((specialty) => (
+                          <Badge
+                            key={`${hospital.id}-${specialty}`}
+                            variant={
+                              selectedWard[hospital.id] === specialty ||
+                              (!selectedWard[hospital.id] &&
+                                specialty === 'General')
+                                ? 'default'
+                                : 'outline'
+                            }
+                            className="text-xs cursor-pointer"
+                            onClick={() => {
+                              setSelectedWard((prev) => ({
+                                ...prev,
+                                [hospital.id]: specialty,
+                              }));
+                              fetchBeds(hospital.id);
+                            }}
+                          >
+                            {specialty.replace(/_/g, ' ')}
+                          </Badge>
+                        ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <PhoneIcon className="h-3 w-3" />
+                      <span>{hospital.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <HospitalPartnerModal
+                        hospital={hospital}
+                        isAdmin={isAdmin}
+                        onSave={handleSaveHospital}
+                        trigger={
+                          <Button variant="outline" size="sm">
+                            {isAdmin ? 'View / Edit' : 'View Details'}
+                          </Button>
+                        }
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEnroll(hospital.id)}
+                      >
+                        Enrol
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

@@ -22,6 +22,34 @@
       "when": 1754764824164,
       "tag": "0002_legal_franklin_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754799788271,
+      "tag": "0003_massive_leader",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755484963323,
+      "tag": "0004_tiresome_lyja",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755697912691,
+      "tag": "0005_lumpy_rocket_raccoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755698043175,
+      "tag": "0006_tense_anita_blake",
+      "breakpoints": true
     }
   ]
 }

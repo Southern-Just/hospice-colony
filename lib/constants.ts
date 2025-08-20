@@ -1,4 +1,4 @@
-export const SPECIALTIES = [
+export const HOSPITAL_SPECIALTIES = [
   'Emergency',
   'ICU',
   'Surgery',
@@ -10,6 +10,12 @@ export const SPECIALTIES = [
   'General Medicine',
   'Maternity',
   'Urgent Care',
+  "Oncology",
+  "Radiology",
+  "Dermatology",
+  "Gynecology",
+  "Urology",
 ] as const;
 
-export type Specialty = (typeof SPECIALTIES)[number];
+export const HOSPITAL_STATUS = ["active", "inactive"] as const;
+

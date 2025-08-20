@@ -5,27 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0166eb3-4a53-4e07-a0e1-c8730386200c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/admit/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/admissions/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/hospitals/[id]/admit/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/Admission.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/aco/aco.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/aco/acoService.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/aco/persistentACOService.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/database/pheromoneStore.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/validation/hospital.validation.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/admissions/route.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/beds/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/beds/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/hospitals/[id]/admit/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/hospitals/[id]/admit/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/hospitals/[id]/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/hospitals/[id]/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/hospitals/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/hospitals/route.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/BedArrangement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/BedArrangement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/HospitalDetailsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/HospitalDetailsModal.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/HospitalPartners.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/HospitalPartners.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/drizzle/migrations/meta/_journal.json" beforeDir="false" afterPath="$PROJECT_DIR$/drizzle/migrations/meta/_journal.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/database/db.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/db.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/database/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/database/schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/AntColonyOptimization.model.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/model/AntColonyOptimization.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/seed-admin.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/types.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/types.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,38 +54,56 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/southern/Programming/react-apps/hospice-colony/public&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/southern/Programming/react-apps/nextjs/hospice-colony/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "last_opened_file_path": "/home/southern/Programming/react-apps/hospice-colony/public",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "/home/southern/Programming/react-apps/nextjs/hospice-colony/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/public" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/validation" />
       <recent name="$PROJECT_DIR$/lib/database" />
       <recent name="$PROJECT_DIR$/lib/aco" />
       <recent name="$PROJECT_DIR$/app/api/hospitals/[id]" />
       <recent name="$PROJECT_DIR$/app/api/hospitals" />
-      <recent name="$PROJECT_DIR$/app/admit" />
     </key>
+  </component>
+  <component name="RunManager" selected="npm.Next.js: server-side">
+    <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
+    <configuration name="Next.js: server-side" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-WS-243.23654.157" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-WS-252.23892.411" />
       </set>
     </attachedChunks>
   </component>
@@ -117,11 +128,27 @@
       <workItem from="1754650452541" duration="14145000" />
       <workItem from="1754701415658" duration="9394000" />
       <workItem from="1754759019351" duration="8475000" />
+      <workItem from="1754778024852" duration="55000" />
+      <workItem from="1754793083764" duration="9904000" />
+      <workItem from="1754845104765" duration="675000" />
+      <workItem from="1754857424849" duration="4387000" />
+      <workItem from="1754979230280" duration="195000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -143,7 +170,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/lib/aco/acoService.ts</url>
           <line>1</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>

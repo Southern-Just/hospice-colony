@@ -119,10 +119,14 @@
   body {
     @apply bg-background text-foreground;
   }
+    .hospital-partner-modal label {
+    @apply font-bold text-gray-700;
+  }
 
 }
 @layer components {
   .sonner-toast {
     @apply max-w-[max-content] w-auto;
   }
+
 }

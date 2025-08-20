@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { persistentACOService } from "@/lib/aco/persistentACOService";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET!; // Make sure you have this in env
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 async function getUserFromAuthHeader(req: NextRequest) {
     try {
@@ -13,7 +13,7 @@ async function getUserFromAuthHeader(req: NextRequest) {
         if (!authHeader?.startsWith("Bearer ")) return null;
         const token = authHeader.substring(7);
         const decoded = jwt.verify(token, JWT_SECRET);
-        return decoded as { id: string; role: string; email: string }; // Adjust based on your JWT payload
+        return decoded as { id: string; role: string; email: string };
     } catch {
         return null;
     }
@@ -25,9 +25,12 @@ export async function POST(
 ) {
     try {
         const user = await getUserFromAuthHeader(req);
-        if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        if (!["admin", "staff"].includes(user.role))
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        if (!["admin", "staff"].includes(user.role)) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
 
         const { patientPriority, wardType } = await req.json();
         if (!patientPriority || !wardType) {
@@ -40,14 +43,18 @@ export async function POST(
         const hospital = await db.query.hospitals.findFirst({
             where: eq(hospitals.id, params.id),
         });
-        if (!hospital) return NextResponse.json({ error: "Hospital not found" }, { status: 404 });
+        if (!hospital) {
+            return NextResponse.json({ error: "Hospital not found" }, { status: 404 });
+        }
 
         const bedId = await persistentACOService.selectBed({
             hospitalId: params.id,
             wardType,
             priority: patientPriority,
         });
-        if (!bedId) return NextResponse.json({ error: "No available bed" }, { status: 409 });
+        if (!bedId) {
+            return NextResponse.json({ error: "No available bed" }, { status: 409 });
+        }
 
         await db.update(beds).set({ status: "occupied" }).where(eq(beds.id, bedId));
         await db
@@ -64,6 +71,8 @@ export async function POST(
         return NextResponse.json({
             message: "Patient admitted successfully",
             assignedBed: bedId,
+            hospitalId: params.id,
+            availableBeds: hospital.availableBeds - 1,
         });
     } catch (err) {
         console.error("Admit route error:", err);

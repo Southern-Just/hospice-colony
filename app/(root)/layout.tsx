@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react'
 
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import {AuthProvider} from "@/contexts/AuthContext";
+import {AuthProvider} from "@/components/contexts/AuthContext";
 
 const layout = ({children}:{children:ReactNode}) => {
   return (

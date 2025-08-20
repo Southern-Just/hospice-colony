@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { HospitalIcon } from 'lucide-react';
