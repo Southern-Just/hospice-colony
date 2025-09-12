@@ -50,6 +50,13 @@
       "when": 1755698043175,
       "tag": "0006_tense_anita_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1757645658302,
+      "tag": "0007_quiet_jocasta",
+      "breakpoints": true
     }
   ]
 }

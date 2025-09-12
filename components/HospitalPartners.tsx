@@ -170,7 +170,7 @@ export function HospitalPartners() {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Beds</p>
                       <div className="flex items-center space-x-2">
-                        <BedIcon className="h-4 w-4" />
+                        <BedIcon className="h-4 w-4 text-blue-600" />
                         <span className="font-semibold">
                           {hospital.totalBeds}
                         </span>
@@ -179,52 +179,81 @@ export function HospitalPartners() {
                     <div>
                       <p className="text-sm text-muted-foreground">Available</p>
                       <div className="flex items-center space-x-2">
-                        <BedIcon className="h-4 w-4 text-green-600" />
+                        <BedIcon className="h-4 w-4 text-blue-600" />
                         <span className="font-semibold text-green-600">
                           {availableBedsCount}
                         </span>
                       </div>
                     </div>
+
                     <div className="flex justify-center items-center">
-                      <Button
-                        asChild
-                        className="bg-muted-foreground rounded-full text-white px-4 py-2 hover:bg-muted-foreground/80"
-                      >
-                        <Link href="/admit">Get Admitted</Link>
-                      </Button>
+                      {isAdmin ? (
+                        <Button
+                          asChild
+                          className="bg-blue-400 rounded-full text-white px-4 py-2 hover:bg-blue-300"
+                        >
+                          <Link href={`/hospitals/${hospital.id}/beds`}>
+                            Manage Beds
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          asChild
+                          className="bg-green-700 rounded-full text-white px-4 py-2 hover:bg-green-600"
+                        >
+                          <Link href={`/hospitals/${hospital.id}/patients/admit`}>
+                            Get Admitted
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-sm mb-1.5 text-muted-foreground">
-                      Specialties
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {['General', ...(hospital.specialties ?? [])]
-                        .filter((v, i, arr) => arr.indexOf(v) === i)
-                        .map((specialty) => (
-                          <Badge
-                            key={`${hospital.id}-${specialty}`}
-                            variant={
-                              selectedWard[hospital.id] === specialty ||
-                              (!selectedWard[hospital.id] &&
-                                specialty === 'General')
-                                ? 'default'
-                                : 'outline'
-                            }
-                            className="text-xs cursor-pointer"
-                            onClick={() => {
-                              setSelectedWard((prev) => ({
-                                ...prev,
-                                [hospital.id]: specialty,
-                              }));
-                              fetchBeds(hospital.id);
-                            }}
-                          >
-                            {specialty.replace(/_/g, ' ')}
-                          </Badge>
-                        ))}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm mb-1.5 text-muted-foreground">
+                        Specialties
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {['General', ...(hospital.specialties ?? [])]
+                          .filter((v, i, arr) => arr.indexOf(v) === i)
+                          .map((specialty) => (
+                            <Badge
+                              key={`${hospital.id}-${specialty}`}
+                              variant={
+                                selectedWard[hospital.id] === specialty ||
+                                (!selectedWard[hospital.id] &&
+                                  specialty === 'General')
+                                  ? 'default'
+                                  : 'outline'
+                              }
+                              className="text-xs cursor-pointer"
+                              onClick={() => {
+                                setSelectedWard((prev) => ({
+                                  ...prev,
+                                  [hospital.id]: specialty,
+                                }));
+                                fetchBeds(hospital.id);
+                              }}
+                            >
+                              {specialty.replace(/_/g, ' ')}
+                            </Badge>
+                          ))}
+                      </div>
                     </div>
+
+                    {isAdmin && (
+                      <div className="mr-6">
+                        <Button
+                          asChild
+                          className="bg-green-700 rounded-full text-white px-4 py-2 hover:bg-green-600"
+                        >
+                          <Link href={`/hospitals/${hospital.id}/patients`}>
+                            Hosp-Patients
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t">
@@ -243,13 +272,15 @@ export function HospitalPartners() {
                           </Button>
                         }
                       />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEnroll(hospital.id)}
-                      >
-                        Enrol
-                      </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEnroll(hospital.id)}
+                        >
+                          Enrol
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

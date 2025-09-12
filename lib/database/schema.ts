@@ -1,5 +1,5 @@
 import {
-    pgTable, text, timestamp, integer, uuid, varchar, boolean, jsonb, real, numeric,
+    pgTable, text, timestamp, integer, uuid, varchar, boolean, jsonb,date, real, numeric,
     unique
 } from 'drizzle-orm/pg-core';
 import { HOSPITAL_SPECIALTIES, HOSPITAL_STATUS } from "@/lib/constants";
@@ -16,6 +16,24 @@ export const users = pgTable('users', {
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const patients = pgTable("patients", {
+  id: uuid("id").primaryKey(),
+  hospitalId: integer("hospital_id").notNull(),
+  bedId: integer("bed_id"), 
+  name: varchar("name", { length: 255 }).notNull(),
+  gender: varchar("gender", { length: 50 }).notNull(),
+  dateOfBirth: date("date_of_birth").notNull(),
+  location: varchar("location", { length: 255 }),
+  contact: varchar("contact", { length: 100 }),
+  idNumber: varchar("id_number", { length: 100 }),
+  healthCondition: text("health_condition"),
+  admissionDate: timestamp("admission_date").defaultNow(),
+  dischargeDate: timestamp("discharge_date"),
+  nextOfKin: varchar("next_of_kin", { length: 255 }),
+  insuranceProvider: varchar("insurance_provider", { length: 255 }),
+  insuranceNumber: varchar("insurance_number", { length: 255 }),
 });
 
 // ---------------- SESSIONS ----------------
