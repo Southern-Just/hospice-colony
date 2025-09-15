@@ -32,7 +32,7 @@ export function HospitalViewModal({
   open: boolean;
   onClose: () => void;
   isAdmin: boolean;
-  onSaved: () => void;
+  onSaved?: () => void; // now optional
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -43,6 +43,7 @@ export function HospitalViewModal({
     specialties: [] as string[],
     status: "active",
   });
+
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export function HospitalViewModal({
         specialties: hospital.specialties || [],
         status: hospital.status || "active",
       });
-      setEditMode(false); // always reset back to view mode
+      setEditMode(false);
     }
   }, [hospital]);
 
@@ -78,9 +79,10 @@ export function HospitalViewModal({
   };
 
   const handleSave = async () => {
+    if (!hospital) return;
     try {
       const res = await fetch(`/api/hospitals/${hospital.id}`, {
-        method: "PUT",
+        method: "PATCH", // PATCH instead of PUT
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
@@ -88,11 +90,19 @@ export function HospitalViewModal({
           availableBeds: parseInt(formData.availableBeds),
         }),
       });
-      if (!res.ok) throw new Error("Failed to update hospital");
-      toast.success("Partner hospital updated!");
-      onSaved();
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Server response:", text);
+        throw new Error("Failed to update hospital");
+      }
+
+      toast.success("Hospital updated successfully!");
+      if (onSaved) onSaved(); // only call if provided
+      setEditMode(false);
       onClose();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Error updating hospital");
     }
   };
@@ -101,7 +111,7 @@ export function HospitalViewModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl space-y-6 p-6 rounded-2xl  shadow-lg">
+      <DialogContent className="sm:max-w-xl space-y-6 p-6 rounded-2xl shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {editMode ? `Edit ${hospital.name}` : hospital.name}
@@ -109,7 +119,7 @@ export function HospitalViewModal({
         </DialogHeader>
 
         <div className="grid gap-5">
-          {/* Name & Location in one row */}
+          {/* Name & Location */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Name</Label>
@@ -220,9 +230,7 @@ export function HospitalViewModal({
               Edit
             </Button>
           )}
-          {isAdmin && editMode && (
-            <Button onClick={handleSave}>Save</Button>
-          )}
+          {isAdmin && editMode && <Button onClick={handleSave}>Save</Button>}
           <Button variant="secondary" onClick={onClose}>
             {editMode ? "Cancel" : "Close"}
           </Button>
