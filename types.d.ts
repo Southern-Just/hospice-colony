@@ -48,6 +48,17 @@ export interface Hospital {
   
 }
 
+export interface Patient{
+  id: string;
+  hospitalId: string;
+  name: string;
+  gender: string;
+  dob: string;
+  contact: string;
+  location: string;
+  healthDetails: string;
+  admittedAt: string;
+}
 
 export interface DashboardProps {
   totalBeds: number;

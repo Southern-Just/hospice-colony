@@ -1,4 +1,4 @@
-import Admission from "@/components/Admission";
+import Admission from "@/components/PatientAdmissionModal";
 
 export default function AdmitPage() {
     return <Admission />;

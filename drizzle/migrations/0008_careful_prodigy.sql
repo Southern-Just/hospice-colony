@@ -1,0 +1,1 @@
+ALTER TABLE "patients" ALTER COLUMN "hospital_id" SET DATA TYPE uuid;

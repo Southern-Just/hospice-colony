@@ -57,6 +57,20 @@
       "when": 1757645658302,
       "tag": "0007_quiet_jocasta",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1757673398284,
+      "tag": "0008_careful_prodigy",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1757673788005,
+      "tag": "0009_supreme_george_stacy",
+      "breakpoints": true
     }
   ]
 }

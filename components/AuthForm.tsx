@@ -94,7 +94,7 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen hospital-auth-bg flex items-center justify-center p-4">
+    <div className="min-h-screen bg-partner-hospitals flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-3">
@@ -113,9 +113,10 @@ export default function AuthForm() {
         </div>
 
         {/* Main Form */}
-        <Card className="w-full shadow-lg">
+        <Card className="w-full bg-partner-hospitals shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle>
+            <CardTitle className='flex items-center justify-center gap-2 text-xl font-bold'>
+              <p>Powered &rarr;</p>
               {mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
             </CardTitle>
             <CardDescription>
@@ -231,12 +232,12 @@ export default function AuthForm() {
         </Card>
 
         {/* Navigation */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center font-bold">
+          <p className="text-sm font-bold text-foreground">
             {mode === 'sign-in' ? "Don't have an account? " : "Already have an account? "}
             <Button
               variant="link"
-              className="p-0 h-auto text-sm"
+              className="p-0 h-auto text-sm text-red-950 font-bold underline cursor-pointer"
               onClick={toggleMode}
             >
               {mode === 'sign-in' ? 'Sign up here' : 'Sign in here'}
@@ -245,7 +246,7 @@ export default function AuthForm() {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-sm text-muted-foreground space-y-1">
+        <div className="text-center bg-white/30 width-full text-sm text-foreground space-y-1">
           <p>© {new Date().getFullYear()} Hospice::Colony. All rights reserved.</p>
           <p>Secure authentication system</p>
         </div>

@@ -1,43 +1,59 @@
 import { db } from "@/lib/database/db";
-import { users, hospitals, sessions } from "@/lib/database/schema";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { config } from "@/lib/config";
-import { eq } from "drizzle-orm";
+import { patients } from "@/lib/database/schema";
+import { eq, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 export const dbUtils = {
-  authenticateUser: async (email: string, password: string) => {
-    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (!user) return null;
-
-    const valid = await bcrypt.compare(password, user.password);
-    return valid ? user : null;
+  getPatientsByHospital: async (hospitalId: string) => {
+    return await db
+      .select()
+      .from(patients)
+      .where(eq(patients.hospitalId, hospitalId))
+      .orderBy(desc(patients.admittedAt))
+      .limit(2);
   },
 
-  getSessionByToken: async (token: string) => {
-    const [session] = await db.select().from(sessions).where(eq(sessions.token, token)).limit(1);
-    return session || null;
+  getPatientById: async (patientId: string) => {
+    const [patient] = await db
+      .select()
+      .from(patients)
+      .where(eq(patients.id, patientId))
+      .limit(1);
+    return patient || null;
   },
 
-  deleteSession: async (token: string) => {
-    await db.delete(sessions).where(eq(sessions.token, token));
+  admitPatient: async (data: {
+    hospitalId: string;
+    name: string;
+    gender: string;
+    dob: string;
+    contact: string;
+    location: string;
+    healthDetails: string;
+  }) => {
+    const newPatient = {
+      id: uuidv4(),
+      ...data,
+      admittedAt: new Date(),
+    };
+    await db.insert(patients).values(newPatient);
+    return newPatient;
   },
 
-  createSession: async (userId: string) => {
-    const token = jwt.sign({ userId }, config.auth.jwtSecret, { expiresIn: "24h" });
-    const expiresAt = new Date(Date.now() + config.auth.sessionDuration);
-
-    await db.insert(sessions).values({ id: uuidv4(), userId, token, expiresAt });
-    return { token, expiresAt };
+  updatePatient: async (
+    patientId: string,
+    updates: Partial<typeof patients.$inferInsert>
+  ) => {
+    await db.update(patients).set(updates).where(eq(patients.id, patientId));
+    const [updated] = await db
+      .select()
+      .from(patients)
+      .where(eq(patients.id, patientId))
+      .limit(1);
+    return updated;
   },
 
-  getHospitalById: async (id: string) => {
-    const [hospital] = await db.select().from(hospitals).where(eq(hospitals.id, id)).limit(1);
-    return hospital || null;
+  dischargePatient: async (patientId: string) => {
+    await db.delete(patients).where(eq(patients.id, patientId));
   },
-
-  getAllHospitals: async () => {
-    return await db.select().from(hospitals);
-  }
 };

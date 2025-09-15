@@ -19,16 +19,16 @@ export const users = pgTable('users', {
 });
 
 export const patients = pgTable("patients", {
-  id: uuid("id").primaryKey(),
-  hospitalId: integer("hospital_id").notNull(),
-  bedId: integer("bed_id"), 
+  id: uuid("id").primaryKey().defaultRandom(),
+  hospitalId: uuid("hospital_id").notNull(),   
+  bedId: uuid("bed_id"),
   name: varchar("name", { length: 255 }).notNull(),
   gender: varchar("gender", { length: 50 }).notNull(),
   dateOfBirth: date("date_of_birth").notNull(),
   location: varchar("location", { length: 255 }),
-  contact: varchar("contact", { length: 100 }),
-  idNumber: varchar("id_number", { length: 100 }),
-  healthCondition: text("health_condition"),
+  contact: varchar("contact", { length: 255 }),
+  idNumber: varchar("id_number", { length: 255 }),
+  healthCondition: varchar("health_condition", { length: 255 }),
   admissionDate: timestamp("admission_date").defaultNow(),
   dischargeDate: timestamp("discharge_date"),
   nextOfKin: varchar("next_of_kin", { length: 255 }),

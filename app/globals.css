@@ -122,11 +122,44 @@
     .hospital-partner-modal label {
     @apply font-bold text-gray-700;
   }
+  /* globals.css */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 
 }
 @layer components {
   .sonner-toast {
     @apply max-w-[max-content] w-auto;
   }
+
+    /* Total Beds card background */
+    .bg-total-beds {
+        @apply bg-cover bg-center;
+        background-image: url('/images/hospicehealth5.png');
+    }
+
+    /* Available Beds card background */
+    .bg-available-beds {
+        @apply bg-cover bg-center;
+        background-image: url('/images/hospicehealth2.png');
+    }
+
+    /* Occupied Beds card background */
+    .bg-occupied-beds {
+        @apply bg-cover bg-center;
+        background-image: url('/images/hospicehealth6.png');
+    }
+
+    /* Partner Hospitals card background */
+    .bg-partner-hospitals {
+        @apply bg-cover bg-center;
+        background-image: url('/images/hospicehealth4.png');
+    }
 
 }
